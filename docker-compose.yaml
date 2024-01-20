@@ -1,0 +1,45 @@
+version: '3'
+
+networks:
+  iris-prediction-api-network:
+    driver: bridge
+
+services:
+
+  iris-prediction-api:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    networks:
+      - iris-prediction-api-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    networks:
+      - iris-prediction-api-network
+    environment:
+      - TZ=Europe/Paris
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command: --web.enable-lifecycle --config.file=/etc/prometheus/prometheus.yaml
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - iris-prediction-api-network
+    volumes:
+      - ./grafana:/var/lib/grafana
+      - ./grafana-provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+
+
+volumes:
+  prometheus_data:
+  grafana_data:

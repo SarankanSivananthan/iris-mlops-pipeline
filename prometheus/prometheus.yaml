@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 50s #scraping interval duration
+  scrape_timeout: 15s #waiting duration between each scrape
+
+scrape_configs:
+  - job_name: 'services'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['prometheus:9090', 'iris-prediction-api:5000']

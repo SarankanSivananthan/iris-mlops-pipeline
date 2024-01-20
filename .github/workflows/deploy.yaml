@@ -1,0 +1,48 @@
+name: Docker Publish
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Run Hadolint
+      run: docker run --rm -i hadolint/hadolint < Dockerfile
+      continue-on-error: true
+
+    - name: 'Login via Azure CLI'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Login to ACR
+      run: az acr login --name ${{ secrets.REGISTRY_LOGIN_SERVER }}
+
+    - name: Build and push image
+      run: |
+        docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/model_groupe3:v1
+        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/model_groupe3:v1
+
+    - name: Create Azure container environment
+      run: az containerapp env create -n group3-container-env -g ${{ secrets.RESOURCE_GROUP }} --location francecentral
+
+    - name: Deploy to Azure Container
+      run: |
+        az containerapp create --resource-group ${{ secrets.RESOURCE_GROUP }} --name group3-container --image ${{ secrets.REGISTRY_LOGIN_SERVER }}/model_groupe3:v1 --cpu 1 --memory 2 --registry-server ${{ secrets.REGISTRY_LOGIN_SERVER }} --registry-username ${{ secrets.REGISTRY_USERNAME }} --registry-password ${{ secrets.REGISTRY_PASSWORD }} --ingress external --target-port 5000 --environment group3-container-env
+    
+    - name: Configure autoscaling
+      run: |
+        az containerapp update \
+          --name group3-container \
+          --resource-group ${{ secrets.RESOURCE_GROUP }} \
+          --scale-rule-name http-scale-rule \
+          --scale-rule-http-concurrency 5 \
+          --min-replicas 1 \
+          --max-replicas 10
