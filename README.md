@@ -1,4 +1,4 @@
-# Groupe3 — Iris Prediction API (MLOps)
+# Iris Prediction API (MLOps)
 
 - App test in local (run get_model.py)
 ```
