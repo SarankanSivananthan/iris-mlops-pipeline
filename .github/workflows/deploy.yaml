@@ -27,20 +27,20 @@ jobs:
 
     - name: Build and push image
       run: |
-        docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/model_groupe3:v1
-        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/model_groupe3:v1
+        docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/iris-predictor:v1
+        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/iris-predictor:v1
 
     - name: Create Azure container environment
-      run: az containerapp env create -n group3-container-env -g ${{ secrets.RESOURCE_GROUP }} --location francecentral
+      run: az containerapp env create -n iris-predictor-container-env -g ${{ secrets.RESOURCE_GROUP }} --location francecentral
 
     - name: Deploy to Azure Container
       run: |
-        az containerapp create --resource-group ${{ secrets.RESOURCE_GROUP }} --name group3-container --image ${{ secrets.REGISTRY_LOGIN_SERVER }}/model_groupe3:v1 --cpu 1 --memory 2 --registry-server ${{ secrets.REGISTRY_LOGIN_SERVER }} --registry-username ${{ secrets.REGISTRY_USERNAME }} --registry-password ${{ secrets.REGISTRY_PASSWORD }} --ingress external --target-port 5000 --environment group3-container-env
+        az containerapp create --resource-group ${{ secrets.RESOURCE_GROUP }} --name iris-predictor-container --image ${{ secrets.REGISTRY_LOGIN_SERVER }}/iris-predictor:v1 --cpu 1 --memory 2 --registry-server ${{ secrets.REGISTRY_LOGIN_SERVER }} --registry-username ${{ secrets.REGISTRY_USERNAME }} --registry-password ${{ secrets.REGISTRY_PASSWORD }} --ingress external --target-port 5000 --environment iris-predictor-container-env
     
     - name: Configure autoscaling
       run: |
         az containerapp update \
-          --name group3-container \
+          --name iris-predictor-container \
           --resource-group ${{ secrets.RESOURCE_GROUP }} \
           --scale-rule-name http-scale-rule \
           --scale-rule-http-concurrency 5 \

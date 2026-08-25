@@ -7,7 +7,7 @@ export let options = {
 };
 
 export default function () {
-  const url = 'https://group3-container.bluesmoke-5ac04595.francecentral.azurecontainerapps.io/predict';
+  const url = 'https://iris-predictor-container.bluesmoke-5ac04595.francecentral.azurecontainerapps.io/predict';
 
   const payload = {
     sepal_length: 5.1,
