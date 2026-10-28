@@ -2,3 +2,12 @@ __pycache__/
 *.pyc
 .DS_Store
 ._*
+
+# MLflow tracking data (local runs)
+mlruns/
+mlflow.db
+
+# Tests / virtualenvs
+.pytest_cache/
+venv/
+.venv/

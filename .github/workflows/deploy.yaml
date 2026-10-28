@@ -4,9 +4,35 @@ on:
   push:
     branches:
       - main
+  pull_request:
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+        cache: pip
+        cache-dependency-path: |
+          requirements.txt
+          requirements-dev.txt
+
+    - name: Install dependencies
+      run: pip install -r requirements-dev.txt
+
+    - name: Run tests
+      run: pytest
+
   build-and-push:
+    needs: test
+    # Pull requests only run the tests; deployment happens on pushes to main.
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
